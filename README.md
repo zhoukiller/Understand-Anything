@@ -4,7 +4,7 @@ An open-source tool that combines LLM intelligence with static analysis to help 
 
 ## Current Status
 
-**Phase 2 complete.** The core analysis engine, web dashboard, and Claude Code skill are all functional. The project includes fuzzy search, schema validation, staleness detection, layer auto-detection, and an interactive chat interface.
+**Phase 4 complete.** The core analysis engine, web dashboard, and Claude Code skills are all functional. The project includes a multi-agent `/understand` command, fuzzy and semantic search, schema validation, staleness detection, layer auto-detection, guided learning tours, and an interactive chat interface.
 
 ## Features
 
@@ -24,6 +24,20 @@ An open-source tool that combines LLM intelligence with static analysis to help 
 - **Dashboard Chat Panel** — Context-aware Q&A integrated into the web dashboard (Claude API)
 - **Dagre Auto-Layout** — Automatic hierarchical graph layout for clean visualization
 - **Layer Visualization** — Color-coded layer grouping with collapsible groups and a legend panel
+
+### Phase 3 — Learning
+- **Guided Tours** — Auto-generated step-by-step walkthroughs of codebase architecture (Kahn's algorithm)
+- **Language Lessons** — 12 concept patterns explained in context (generics, closures, decorators, etc.)
+- **Persona Selector** — Adaptive UI for junior devs, non-technical stakeholders, and AI-assisted developers
+- **Learn Panel** — Interactive tour mode with graph highlighting in the dashboard
+
+### Phase 4 — Skills & Ecosystem
+- **`/understand` Command** — Multi-agent pipeline that analyzes a codebase end-to-end and produces `knowledge-graph.json`
+- **`/understand-diff` Skill** — Analyze git diffs against the knowledge graph for impact and risk assessment
+- **`/understand-explain` Skill** — Deep-dive explanations of any file, function, or module
+- **`/understand-onboard` Skill** — Generate team onboarding guides from the knowledge graph
+- **Plugin Registry** — Community analyzer plugins with auto-discovery
+- **Semantic Search** — Embedding-based vector search with cosine similarity
 
 ## Quick Start
 
@@ -53,22 +67,67 @@ pnpm dev:dashboard
 | `pnpm --filter @understand-anything/dashboard build` | Build the dashboard |
 | `pnpm dev:dashboard` | Start dashboard dev server |
 
-### Claude Code Skill
+### Claude Code Skills
 
-Once installed as a Claude Code skill, use the `/understand-chat` command to ask questions about your codebase directly in the terminal:
+Install as a Claude Code plugin, then use these commands:
 
-```
+```bash
+# Analyze a codebase (produces .understand-anything/knowledge-graph.json)
+/understand
+
+# Force a full rebuild
+/understand --full
+
+# Ask questions about the codebase
 /understand-chat How does authentication work in this project?
-/understand-chat What files are related to the payment system?
+
+# Analyze impact of current changes
+/understand-diff
+
+# Deep-dive into a specific file
+/understand-explain src/auth/login.ts
+
+# Generate an onboarding guide
+/understand-onboard
 ```
+
+#### Plugin Installation
+
+```bash
+# Option 1: Load for current session
+claude --plugin-dir ./packages/skill
+
+# Option 2: Add to .claude/settings.json for persistent use
+{
+  "enabledPlugins": {
+    "understand-anything": {}
+  }
+}
+```
+
+#### Multi-Agent Architecture
+
+The `/understand` command orchestrates 5 specialized agents in a 7-phase pipeline:
+
+| Agent | Model | Role |
+|-------|-------|------|
+| `project-scanner` | Haiku | Discover files, detect languages and frameworks |
+| `file-analyzer` | Sonnet | Extract functions, classes, imports; produce graph nodes/edges |
+| `architecture-analyzer` | Sonnet | Identify architectural layers (API, Service, Data, UI, etc.) |
+| `tour-builder` | Sonnet | Generate guided learning tours |
+| `graph-reviewer` | Haiku | Validate graph completeness and referential integrity |
+
+File analyzers run in parallel (up to 3 concurrent) for speed. Supports incremental updates — only re-analyzes files that changed since the last run.
 
 ## Project Structure
 
 ```
 packages/
-  core/        — Analysis engine: types, persistence, tree-sitter, search, schema, staleness, layers
-  dashboard/   — React + TypeScript web dashboard with chat panel
-  skill/       — Claude Code skill (/understand-chat command)
+  core/        — Analysis engine: types, persistence, tree-sitter, search, schema, staleness, layers, tours
+  dashboard/   — React + TypeScript web dashboard with chat, learn, and persona panels
+  skill/
+    agents/    — Specialized AI agents (scanner, analyzer, architect, tour-builder, reviewer)
+    skills/    — Claude Code skills (/understand, /understand-chat, /understand-diff, etc.)
 ```
 
 ## Tech Stack
