@@ -22,6 +22,10 @@ interface DashboardStore {
 
   showLayers: boolean;
 
+  tourActive: boolean;
+  currentTourStep: number;
+  tourHighlightedNodeIds: string[];
+
   setGraph: (graph: KnowledgeGraph) => void;
   selectNode: (nodeId: string | null) => void;
   setSearchQuery: (query: string) => void;
@@ -29,6 +33,12 @@ interface DashboardStore {
   sendChatMessage: (message: string) => Promise<void>;
   clearChat: () => void;
   toggleLayers: () => void;
+
+  startTour: () => void;
+  stopTour: () => void;
+  setTourStep: (step: number) => void;
+  nextTourStep: () => void;
+  prevTourStep: () => void;
 }
 
 function buildSystemPrompt(
@@ -115,6 +125,10 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
 
   showLayers: false,
 
+  tourActive: false,
+  currentTourStep: 0,
+  tourHighlightedNodeIds: [],
+
   setGraph: (graph) => {
     const searchEngine = new SearchEngine(graph.nodes);
     const query = get().searchQuery;
@@ -194,4 +208,60 @@ export const useDashboardStore = create<DashboardStore>()((set, get) => ({
   clearChat: () => set({ chatMessages: [] }),
 
   toggleLayers: () => set((state) => ({ showLayers: !state.showLayers })),
+
+  startTour: () => {
+    const { graph } = get();
+    if (!graph || graph.tour.length === 0) return;
+    const sorted = [...graph.tour].sort((a, b) => a.order - b.order);
+    set({
+      tourActive: true,
+      currentTourStep: 0,
+      tourHighlightedNodeIds: sorted[0].nodeIds,
+      selectedNodeId: null,
+    });
+  },
+
+  stopTour: () =>
+    set({
+      tourActive: false,
+      currentTourStep: 0,
+      tourHighlightedNodeIds: [],
+    }),
+
+  setTourStep: (step) => {
+    const { graph } = get();
+    if (!graph || graph.tour.length === 0) return;
+    const sorted = [...graph.tour].sort((a, b) => a.order - b.order);
+    if (step < 0 || step >= sorted.length) return;
+    set({
+      currentTourStep: step,
+      tourHighlightedNodeIds: sorted[step].nodeIds,
+    });
+  },
+
+  nextTourStep: () => {
+    const { graph, currentTourStep } = get();
+    if (!graph || graph.tour.length === 0) return;
+    const sorted = [...graph.tour].sort((a, b) => a.order - b.order);
+    if (currentTourStep < sorted.length - 1) {
+      const next = currentTourStep + 1;
+      set({
+        currentTourStep: next,
+        tourHighlightedNodeIds: sorted[next].nodeIds,
+      });
+    }
+  },
+
+  prevTourStep: () => {
+    const { graph, currentTourStep } = get();
+    if (!graph || graph.tour.length === 0) return;
+    if (currentTourStep > 0) {
+      const sorted = [...graph.tour].sort((a, b) => a.order - b.order);
+      const prev = currentTourStep - 1;
+      set({
+        currentTourStep: prev,
+        tourHighlightedNodeIds: sorted[prev].nodeIds,
+      });
+    }
+  },
 }));

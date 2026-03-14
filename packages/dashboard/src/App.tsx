@@ -7,10 +7,12 @@ import SearchBar from "./components/SearchBar";
 import NodeInfo from "./components/NodeInfo";
 import ChatPanel from "./components/ChatPanel";
 import LayerLegend from "./components/LayerLegend";
+import LearnPanel from "./components/LearnPanel";
 
 function App() {
   const graph = useDashboardStore((s) => s.graph);
   const setGraph = useDashboardStore((s) => s.setGraph);
+  const tourActive = useDashboardStore((s) => s.tourActive);
 
   useEffect(() => {
     fetch("/knowledge-graph.json")
@@ -21,6 +23,7 @@ function App() {
 
   const nodeCount = graph?.nodes.length ?? 0;
   const edgeCount = graph?.edges.length ?? 0;
+  const hasTour = (graph?.tour.length ?? 0) > 0;
 
   return (
     <div className="h-screen w-screen flex flex-col bg-gray-900 text-white">
@@ -64,9 +67,45 @@ function App() {
           <ChatPanel />
         </div>
 
-        {/* Bottom-right: Node Info */}
-        <div className="min-h-0 min-w-0">
-          <NodeInfo />
+        {/* Bottom-right: Node Info / Learn Panel */}
+        <div className="min-h-0 min-w-0 flex flex-col">
+          {hasTour ? (
+            <>
+              {/* Tab bar */}
+              <div className="flex bg-gray-800 rounded-t-lg border-b border-gray-700 shrink-0">
+                <button
+                  onClick={() => {
+                    if (tourActive) useDashboardStore.getState().stopTour();
+                  }}
+                  className={`flex-1 text-xs font-medium py-1.5 px-3 transition-colors ${
+                    !tourActive
+                      ? "text-white border-b-2 border-indigo-500"
+                      : "text-gray-500 hover:text-gray-300"
+                  }`}
+                >
+                  Details
+                </button>
+                <button
+                  onClick={() => {
+                    if (!tourActive) useDashboardStore.getState().startTour();
+                  }}
+                  className={`flex-1 text-xs font-medium py-1.5 px-3 transition-colors ${
+                    tourActive
+                      ? "text-white border-b-2 border-indigo-500"
+                      : "text-gray-500 hover:text-gray-300"
+                  }`}
+                >
+                  Tour
+                </button>
+              </div>
+              {/* Active panel */}
+              <div className="flex-1 min-h-0">
+                {tourActive ? <LearnPanel /> : <NodeInfo />}
+              </div>
+            </>
+          ) : (
+            <NodeInfo />
+          )}
         </div>
       </div>
     </div>
