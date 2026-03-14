@@ -1,6 +1,6 @@
 ---
 name: understand-onboard
-description: Generate a structured onboarding guide for new team members using the knowledge graph
+description: Use when you need to generate an onboarding guide for new team members joining a project
 ---
 
 # /understand-onboard

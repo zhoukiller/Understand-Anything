@@ -7,7 +7,7 @@ An open-source tool combining LLM intelligence + static analysis to produce inte
 - **Monorepo** with pnpm workspaces
 - **packages/core** — Shared analysis engine (types, persistence, tree-sitter plugin, LLM prompt templates)
 - **packages/dashboard** — React + TypeScript web dashboard (React Flow, Monaco Editor, Zustand, TailwindCSS)
-- **packages/skill** — Claude Code skill (`/understand-chat` command)
+- **packages/skill** — Claude Code skills (`/understand-chat`, `/understand-diff`, `/understand-explain`, `/understand-onboard`)
 
 ## Key Commands
 - `pnpm install` — Install all dependencies

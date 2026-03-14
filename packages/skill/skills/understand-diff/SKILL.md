@@ -1,6 +1,6 @@
 ---
 name: understand-diff
-description: Analyze current git diff or PR against the knowledge graph to identify changes, impact, and risks
+description: Use when you need to analyze git diffs or pull requests to understand what changed, affected components, and risks
 ---
 
 # /understand-diff
