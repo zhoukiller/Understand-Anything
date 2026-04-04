@@ -25,6 +25,14 @@ from pathlib import Path
 from typing import Any
 
 
+def _num(v: Any) -> float:
+    """Coerce a value to float for safe comparison (handles string weights)."""
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def load_graph(path: Path) -> dict[str, Any] | None:
     """Load and minimally validate a knowledge graph JSON file."""
     try:
@@ -77,7 +85,7 @@ def merge_graphs(graphs: list[dict[str, Any]]) -> tuple[dict[str, Any], list[str
                 edges_by_key[key] = edge
             else:
                 edge_dedup_count += 1
-                if edge.get("weight", 0) > existing.get("weight", 0):
+                if _num(edge.get("weight", 0)) > _num(existing.get("weight", 0)):
                     edges_by_key[key] = edge
 
     # Drop edges referencing missing nodes

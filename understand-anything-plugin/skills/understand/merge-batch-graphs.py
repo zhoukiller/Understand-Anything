@@ -69,6 +69,14 @@ COMPLEXITY_MAP: dict[str, str] = {
 VALID_COMPLEXITY = {"simple", "moderate", "complex"}
 
 
+def _num(v: Any) -> float:
+    """Coerce a value to float for safe comparison (handles string weights)."""
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 # ── Batch loading ─────────────────────────────────────────────────────────
 
 def load_batch(path: Path) -> dict[str, Any] | None:
@@ -284,7 +292,7 @@ def merge_and_normalize(batches: list[dict[str, Any]]) -> tuple[dict[str, Any], 
 
         key = (src, tgt, etype)
         existing = edges_by_key.get(key)
-        if existing is None or edge.get("weight", 0) > existing.get("weight", 0):
+        if existing is None or _num(edge.get("weight", 0)) > _num(existing.get("weight", 0)):
             edges_by_key[key] = edge
 
     # ── Build report ─────────────────────────────────────────────────
