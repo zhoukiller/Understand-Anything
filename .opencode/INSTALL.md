@@ -18,7 +18,7 @@
    # Note: if Codex's Understand-Anything is already installed, these symlinks
    # already exist and the ln commands will safely fail — that is fine, the
    # existing symlinks work for OpenCode too.
-   for skill in understand understand-chat understand-dashboard understand-diff understand-explain understand-onboard; do
+   for skill in understand understand-chat understand-dashboard understand-diff understand-explain understand-onboard understand-domain; do
      ln -sf ~/.opencode/understand-anything/understand-anything-plugin/skills/$skill ~/.agents/skills/$skill
    done
    # Universal plugin root symlink — lets the dashboard skill find packages/dashboard/
@@ -29,7 +29,7 @@
    **Windows (PowerShell):**
    ```powershell
    New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.agents\skills"
-   $skills = @("understand","understand-chat","understand-dashboard","understand-diff","understand-explain","understand-onboard")
+   $skills = @("understand","understand-chat","understand-dashboard","understand-diff","understand-explain","understand-onboard","understand-domain")
    foreach ($skill in $skills) {
      cmd /c mklink /J "$env:USERPROFILE\.agents\skills\$skill" "$env:USERPROFILE\.opencode\understand-anything\understand-anything-plugin\skills\$skill"
    }
